@@ -22,6 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Atualização para Node.js 20
+      - name: Use Node.js 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -40,9 +46,6 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
 
-      # Adicionando etapa para atualizar a infraestrutura na AWS
-      - name: Update AWS Infrastructure
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          # Comandos para atualizar a infraestrutura na AWS, por exemplo:
-          # aws cloudformation deploy --template-file my-stack.yaml --stack-name MyStack --capabilities CAPABILITY_IAM
+      # Atualização para o uso de Environment Files
+      - name: Set Terraform Output
+        run: echo "::set-env name=TERRAFORM_OUTPUT::$(terraform output -json)"
