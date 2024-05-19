@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  form-web:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/usr/src/app
+    command: sh /usr/src/app/entrypoint.sh
