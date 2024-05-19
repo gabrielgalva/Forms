@@ -40,11 +40,9 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
 
-      # Adicione etapas adicionais aqui para atualizar a infraestrutura na AWS após a aplicação de mudanças com o Terraform
+      # Adicionando etapa para atualizar a infraestrutura na AWS
       - name: Update AWS Infrastructure
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          # Comandos para atualizar a infraestrutura na AWS
-          # Por exemplo, você pode usar aws cli commands para atualizar um serviço ou implantar uma nova instância EC2
-          # Exemplo:
-          # aws ec2 run-instances --image-id ami-123456 --count 1 --instance-type t2.micro
+          # Comandos para atualizar a infraestrutura na AWS, por exemplo:
+          # aws cloudformation deploy --template-file my-stack.yaml --stack-name MyStack --capabilities CAPABILITY_IAM
