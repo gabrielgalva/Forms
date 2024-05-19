@@ -2,11 +2,11 @@ name: 'Terraform'
 
 on:
   push:
-    branches: [ "main" ] # O fluxo de trabalho é acionado quando ocorre um push para a branch "main"
-  pull_request: # O fluxo de trabalho também é acionado quando é aberto um pull request
+    branches: [ "main" ]
+  pull_request:
 
 permissions:
-  contents: read # O fluxo de trabalho tem permissão apenas para ler o conteúdo do repositório
+  contents: read
 
 jobs:
   terraform:
@@ -16,26 +16,35 @@ jobs:
 
     defaults:
       run:
-        shell: bash # Usa o shell Bash para todas as etapas do job
+        shell: bash
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Clona o repositório na máquina de execução
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Configura o ambiente do Terraform com o token da API do Terraform Cloud
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init
-        run: terraform init # Inicializa o diretório de trabalho do Terraform
+        run: terraform init
 
       - name: Terraform Format
-        run: terraform fmt -check # Verifica a formatação dos arquivos de configuração do Terraform
+        run: terraform fmt -check
 
       - name: Terraform Plan
-        run: terraform plan -input=false # Gera um plano de execução do Terraform
+        run: terraform plan -input=false
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Aplica as mudanças de infraestrutura apenas quando ocorre um push para a branch "main"
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+      # Adicione etapas adicionais aqui para atualizar a infraestrutura na AWS após a aplicação de mudanças com o Terraform
+      - name: Update AWS Infrastructure
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          # Comandos para atualizar a infraestrutura na AWS
+          # Por exemplo, você pode usar aws cli commands para atualizar um serviço ou implantar uma nova instância EC2
+          # Exemplo:
+          # aws ec2 run-instances --image-id ami-123456 --count 1 --instance-type t2.micro
