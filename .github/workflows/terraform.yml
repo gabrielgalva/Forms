@@ -1,0 +1,41 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "main" ] # O fluxo de trabalho é acionado quando ocorre um push para a branch "main"
+  pull_request: # O fluxo de trabalho também é acionado quando é aberto um pull request
+
+permissions:
+  contents: read # O fluxo de trabalho tem permissão apenas para ler o conteúdo do repositório
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        shell: bash # Usa o shell Bash para todas as etapas do job
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # Clona o repositório na máquina de execução
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Configura o ambiente do Terraform com o token da API do Terraform Cloud
+
+      - name: Terraform Init
+        run: terraform init # Inicializa o diretório de trabalho do Terraform
+
+      - name: Terraform Format
+        run: terraform fmt -check # Verifica a formatação dos arquivos de configuração do Terraform
+
+      - name: Terraform Plan
+        run: terraform plan -input=false # Gera um plano de execução do Terraform
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Aplica as mudanças de infraestrutura apenas quando ocorre um push para a branch "main"
+        run: terraform apply -auto-approve -input=false
